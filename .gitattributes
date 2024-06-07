@@ -1,0 +1,10 @@
+# Enforce LF line endings for XML files
+.xml text eol=lf
+
+# Enforce LF line endings for Java files
+.java text eol=lf
+
+# Optionally enforce LF for other text files
+.properties text eol=lf
+.md text eol=lf
+.txt text eol=lf

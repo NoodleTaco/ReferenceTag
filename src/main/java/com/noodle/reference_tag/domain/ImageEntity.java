@@ -1,0 +1,41 @@
+package com.noodle.reference_tag.domain;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
+@Table(name = "image")
+/**
+ * Entity Class representing the image table in the db
+ */
+public class ImageEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_id_seq")
+    private Long id;
+
+    //Image Path
+    private String path;
+
+
+    //Establishes a bidirectional relationship between image and tag
+    //Details in Doc but provides functionality like
+    @ManyToMany
+    @JoinTable(
+            name = "image_tag",
+            joinColumns = @JoinColumn(name = "image_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<TagEntity> tags = new HashSet<>();
+
+}
