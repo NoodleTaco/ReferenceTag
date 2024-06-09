@@ -8,8 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
+//@AllArgsConstructor
+//NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "image_tag")
