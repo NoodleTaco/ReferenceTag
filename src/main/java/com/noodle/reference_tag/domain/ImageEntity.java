@@ -27,8 +27,4 @@ public class ImageEntity {
     //Image Path
     private String path;
 
-
-    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ImageTagEntity> imageTags = new HashSet<>();
-
 }

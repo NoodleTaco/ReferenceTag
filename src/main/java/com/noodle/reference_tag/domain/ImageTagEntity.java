@@ -21,11 +21,11 @@ public class ImageTagEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_tag_id_seq")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id")
     private ImageEntity image;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "tag_id")
     private TagEntity tag;
 
