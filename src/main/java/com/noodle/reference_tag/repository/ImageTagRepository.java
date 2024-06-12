@@ -2,6 +2,8 @@ package com.noodle.reference_tag.repository;
 
 import com.noodle.reference_tag.domain.ImageTagEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +14,6 @@ public interface ImageTagRepository extends JpaRepository<ImageTagEntity, Long> 
 
     Optional<ImageTagEntity> findByImageIdAndTagId(Long imageId, Long tagId);
 
-    List<ImageTagEntity> findByImageId(Long imageId);
+    @Query("SELECT it FROM ImageTagEntity it WHERE it.image.id = :imageId")
+    List<ImageTagEntity> findByImageId(@Param("imageId") Long imageId);
 }

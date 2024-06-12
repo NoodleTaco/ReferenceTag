@@ -27,4 +27,5 @@ public class TagEntity {
     //Name of the tag, essentially the image type
     private String name;
 
+
 }

@@ -27,4 +27,6 @@ public class ImageEntity {
     //Image Path
     private String path;
 
+
+
 }
