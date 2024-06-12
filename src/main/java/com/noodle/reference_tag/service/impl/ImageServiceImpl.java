@@ -3,10 +3,12 @@ package com.noodle.reference_tag.service.impl;
 import com.noodle.reference_tag.domain.ImageEntity;
 import com.noodle.reference_tag.repository.ImageRepository;
 import com.noodle.reference_tag.service.ImageService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ImageServiceImpl implements ImageService {
 
     /**

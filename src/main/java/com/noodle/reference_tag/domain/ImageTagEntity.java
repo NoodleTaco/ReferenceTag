@@ -1,15 +1,14 @@
 package com.noodle.reference_tag.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-//@AllArgsConstructor
-//NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "image_tag")
@@ -18,5 +17,16 @@ import lombok.NoArgsConstructor;
  */
 public class ImageTagEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_tag_id_seq")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "image_id")
+    private ImageEntity image;
+
+    @ManyToOne
+    @JoinColumn(name = "tag_id")
+    private TagEntity tag;
 
 }

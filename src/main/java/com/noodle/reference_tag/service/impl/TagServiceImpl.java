@@ -3,10 +3,12 @@ package com.noodle.reference_tag.service.impl;
 import com.noodle.reference_tag.domain.TagEntity;
 import com.noodle.reference_tag.repository.TagRepository;
 import com.noodle.reference_tag.service.TagService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class TagServiceImpl implements TagService {
 
     /**

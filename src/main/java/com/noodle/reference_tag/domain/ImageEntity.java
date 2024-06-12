@@ -28,14 +28,7 @@ public class ImageEntity {
     private String path;
 
 
-    //Establishes a bidirectional relationship between image and tag
-    //Details in Doc but provides functionality like
-    @ManyToMany
-    @JoinTable(
-            name = "image_tag",
-            joinColumns = @JoinColumn(name = "image_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<TagEntity> tags = new HashSet<>();
+    @OneToMany(mappedBy = "image", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ImageTagEntity> imageTags = new HashSet<>();
 
 }
