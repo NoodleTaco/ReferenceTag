@@ -16,5 +16,7 @@ public interface TagService {
     boolean isExists(Long id);
 
     void deleteTagById(Long id);
+
+    Optional<TagEntity> findByName(String name);
 }
 

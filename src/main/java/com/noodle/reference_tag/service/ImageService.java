@@ -16,4 +16,5 @@ public interface ImageService {
 
     void deleteImageById(Long id);
 
+    Optional<ImageEntity> findByPath(String path);
 }

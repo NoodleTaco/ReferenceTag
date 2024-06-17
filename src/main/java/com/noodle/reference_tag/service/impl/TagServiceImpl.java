@@ -71,4 +71,9 @@ public class TagServiceImpl implements TagService {
     public void deleteTagById(Long id) {
         tagRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<TagEntity> findByName(String name) {
+        return tagRepository.findByNameIgnoreCase(name);
+    }
 }

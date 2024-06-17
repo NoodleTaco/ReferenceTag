@@ -72,4 +72,11 @@ public class ImageServiceImpl implements ImageService {
     public void deleteImageById(Long id) {
         imageRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<ImageEntity> findByPath(String path) {
+        return imageRepository.findByPathIgnoreCase(path);
+    }
+
+
 }
