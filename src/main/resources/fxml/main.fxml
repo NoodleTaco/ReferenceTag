@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -38,6 +40,19 @@
                <children>
                   <Button fx:id="AddImageButton" mnemonicParsing="false" onAction="#onAddImageButtonAction" prefHeight="50.0" prefWidth="150.0" text="Add Image" />
                   <TilePane fx:id="imageTilePane" prefHeight="200.0" prefWidth="200.0" />
+               </children>
+            </VBox>
+            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2">
+               <children>
+                  <Label fx:id="selectedImageNameLabel" prefHeight="34.0" prefWidth="189.0" text="Label" />
+                  <ImageView fx:id="selectedImageView" fitHeight="244.0" fitWidth="325.0" pickOnBounds="true" preserveRatio="true" />
+                  <ListView fx:id="selectedImageTagListView" prefHeight="200.0" prefWidth="200.0" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="AddTagToImageButton" mnemonicParsing="false" onAction="#addTagToImage" prefHeight="50.0" prefWidth="150.0" text="Add Tag" />
+                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="150.0" text="Remove Tag" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
          </children>

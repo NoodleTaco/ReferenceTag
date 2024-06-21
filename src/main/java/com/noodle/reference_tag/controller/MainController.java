@@ -4,9 +4,12 @@ import com.noodle.reference_tag.config.StageInitializer;
 import com.noodle.reference_tag.domain.ImageEntity;
 import com.noodle.reference_tag.domain.TagEntity;
 import com.noodle.reference_tag.service.ImageService;
+import com.noodle.reference_tag.service.ImageTagService;
 import com.noodle.reference_tag.service.TagService;
 import com.noodle.reference_tag.util.NotificationUtil;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
@@ -16,6 +19,7 @@ import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,11 +37,14 @@ public class MainController {
     private final StageInitializer stageInitializer;
     private final ImageService imageService;
 
+    private final ImageTagService imageTagService;
+
     @Autowired
-    public MainController(TagService tagService, StageInitializer stageInitializer, ImageService imageService) {
+    public MainController(TagService tagService, StageInitializer stageInitializer, ImageService imageService, ImageTagService imageTagService) {
         this.tagService = tagService;
         this.stageInitializer = stageInitializer;
         this.imageService = imageService;
+        this.imageTagService = imageTagService;
     }
 
     //FXML Properties
@@ -48,16 +55,56 @@ public class MainController {
     @FXML
     private TilePane imageTilePane;
 
+    @FXML
+    private ImageView selectedImageView;
 
-    public void initialize(){
+    @FXML
+    private Label selectedImageNameLabel;
+
+    @FXML
+    private ListView<TagEntity> selectedImageTagListView;
+
+
+
+    private ImageEntity selectedImage;
+
+    public void initialize() {
         refreshAllTagListView();
         refreshImageTilePane();
+
+        imageTilePane.setOnMouseClicked(event -> {
+            Node clickedNode = event.getPickResult().getIntersectedNode();
+            if (clickedNode instanceof ImageView) {
+                ImageView clickedImageView = (ImageView) clickedNode;
+                String imagePath = (String) clickedImageView.getUserData();
+                selectedImage = imageService.findByPath(imagePath).orElse(null);
+                if (selectedImage != null) {
+                    updateSelectedImageDetails();
+                } else {
+                    System.out.println("No image found for path: " + imagePath);
+                }
+            }
+        });
+    }
+
+    private void updateSelectedImageDetails() {
+        if (selectedImage != null) {
+            selectedImageView.setImage(new Image(getClass().getResourceAsStream("/" + selectedImage.getPath())));
+            selectedImageNameLabel.setText(Paths.get(selectedImage.getPath()).getFileName().toString());
+            updateImageTags();
+        }
+    }
+
+    private void updateImageTags() {
+        List<TagEntity> tags = imageTagService.getTagsForImage(selectedImage.getId());
+        selectedImageTagListView.getItems().setAll(tags);
     }
 
     /**
      * Called when the Create Tag Button is activated
      *
      */
+    @FXML
     public void onCreateTagAction(){
         //TODO: Make DB Operations work on Separate Thread
         TextInputDialog dialog = new TextInputDialog();
@@ -87,6 +134,7 @@ public class MainController {
         });
     }
 
+    @FXML
     public void onAddImageButtonAction() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Image");
@@ -133,6 +181,7 @@ public class MainController {
     /**
      * Populate the Tag List View using information in the DB
      */
+    @FXML
     public void refreshAllTagListView(){
         List<TagEntity> allTags = tagService.findAllTags();
         allTagListView.getItems().setAll(allTags);
@@ -149,12 +198,46 @@ public class MainController {
                 ImageView thumbnailView = new ImageView(image);
                 thumbnailView.setFitHeight(100);
                 thumbnailView.setFitWidth(100);
+                thumbnailView.setUserData(imageEntity.getPath()); // Store the path as user data
                 imageTilePane.getChildren().add(thumbnailView);
             } catch (Exception e) {
                 // Handle any exceptions that occur while loading the image
                 e.printStackTrace();
             }
         }
+    }
+
+    @FXML
+    private void addTagToImage() {
+        if (selectedImage == null) {
+            NotificationUtil.showNotification("No image selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add Tag to Image");
+        dialog.setHeaderText("Enter the name of the tag to add:");
+        dialog.setContentText("Tag Name:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(tagName -> {
+            if (!tagName.isEmpty()) {
+                Optional<TagEntity> foundTag = tagService.findByName(tagName);
+                if(foundTag.isPresent()){
+                    TagEntity tag = foundTag.get();
+                    System.out.println("Tag Found: " + tag);
+                    imageTagService.associateTagWithImage(selectedImage.getId(), tag.getId());
+                    updateImageTags();
+                    NotificationUtil.showNotification("Tag added to image.", stageInitializer.getPrimaryStage());
+                }
+                else{
+                    NotificationUtil.showNotification("Tag Addition Failed.", stageInitializer.getPrimaryStage());
+                }
+
+                System.out.println("Image Entity to String: " + selectedImage);
+
+            }
+        });
     }
 
 
