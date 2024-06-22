@@ -9,9 +9,7 @@ import com.noodle.reference_tag.service.TagService;
 import com.noodle.reference_tag.util.NotificationUtil;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.TilePane;
@@ -32,7 +30,8 @@ import java.util.Optional;
 @Controller
 public class MainController {
 
-
+    //TODO: Going to have to manually create the cascade functionality when deleting tags or images
+    
     private final TagService tagService;
     private final StageInitializer stageInitializer;
     private final ImageService imageService;
@@ -65,13 +64,17 @@ public class MainController {
     private ListView<TagEntity> selectedImageTagListView;
 
 
-
+    //Properties holding selected elements in display
     private ImageEntity selectedImage;
 
+
+
+    //TODO: Make DB Operations work on Separate Thread
     public void initialize() {
         refreshAllTagListView();
         refreshImageTilePane();
 
+        //Set on click callback for image display
         imageTilePane.setOnMouseClicked(event -> {
             Node clickedNode = event.getPickResult().getIntersectedNode();
             if (clickedNode instanceof ImageView) {
@@ -106,7 +109,7 @@ public class MainController {
      */
     @FXML
     public void onCreateTagAction(){
-        //TODO: Make DB Operations work on Separate Thread
+
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Create New Tag");
         dialog.setHeaderText("Enter the name for the new tag:");
@@ -185,7 +188,6 @@ public class MainController {
     public void refreshAllTagListView(){
         List<TagEntity> allTags = tagService.findAllTags();
         allTagListView.getItems().setAll(allTags);
-        imageService.deleteImageById(2L);
     }
 
     private void refreshImageTilePane() {
@@ -226,9 +228,16 @@ public class MainController {
                 if(foundTag.isPresent()){
                     TagEntity tag = foundTag.get();
                     System.out.println("Tag Found: " + tag);
-                    imageTagService.associateTagWithImage(selectedImage.getId(), tag.getId());
-                    updateImageTags();
-                    NotificationUtil.showNotification("Tag added to image.", stageInitializer.getPrimaryStage());
+
+                    if(imageTagService.findByImageIdAndTagId(selectedImage.getId(), tag.getId()).isEmpty()){
+                        imageTagService.associateTagWithImage(selectedImage.getId(), tag.getId());
+                        updateImageTags();
+                        NotificationUtil.showNotification("Tag added to image.", stageInitializer.getPrimaryStage());
+                    }
+                    else{
+                        NotificationUtil.showNotification("Tag Already Associated with Image.", stageInitializer.getPrimaryStage());
+                    }
+
                 }
                 else{
                     NotificationUtil.showNotification("Tag Addition Failed.", stageInitializer.getPrimaryStage());
@@ -238,6 +247,32 @@ public class MainController {
 
             }
         });
+    }
+
+    @FXML
+    public void removeTagFromImage(){
+        if (selectedImage == null) {
+            NotificationUtil.showNotification("No image selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+
+        TagEntity selectedTag = selectedImageTagListView.getSelectionModel().getSelectedItem();
+        if (selectedTag == null) {
+            NotificationUtil.showNotification("No tag selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirm Tag Removal");
+        confirmDialog.setHeaderText("Are you sure you want to remove this tag?");
+        confirmDialog.setContentText("Tag: " + selectedTag.getName());
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            imageTagService.removeTagFromImage(selectedImage.getId(), selectedTag.getId());
+            updateImageTags();
+            NotificationUtil.showNotification("Tag removed from image.", stageInitializer.getPrimaryStage());
+        }
     }
 
 

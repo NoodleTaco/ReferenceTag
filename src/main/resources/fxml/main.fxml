@@ -50,7 +50,7 @@
                   <HBox prefHeight="100.0" prefWidth="200.0">
                      <children>
                         <Button fx:id="AddTagToImageButton" mnemonicParsing="false" onAction="#addTagToImage" prefHeight="50.0" prefWidth="150.0" text="Add Tag" />
-                        <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="150.0" text="Remove Tag" />
+                        <Button mnemonicParsing="false" onAction="#removeTagFromImage" prefHeight="50.0" prefWidth="150.0" text="Remove Tag" />
                      </children>
                   </HBox>
                </children>

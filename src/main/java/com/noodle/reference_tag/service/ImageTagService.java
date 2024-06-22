@@ -11,9 +11,13 @@ public interface ImageTagService {
     @Transactional
     ImageTagEntity associateTagWithImage(Long imageId, Long tagId);
 
+    @Transactional
     void removeTagFromImage(Long imageId, Long tagId);
 
+
     List<TagEntity> getTagsForImage(Long imageId);
+
+    List<ImageTagEntity> findByImageIdAndTagId(Long imageId, Long tagId);
 
 
 }

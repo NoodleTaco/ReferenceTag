@@ -80,4 +80,9 @@ public class ImageTagServiceImpl implements ImageTagService {
                 .toList();
 
     }
+
+    @Override
+    public List<ImageTagEntity> findByImageIdAndTagId(Long imageId, Long tagId) {
+        return imageTagRepository.findByImage_IdAndTag_Id(imageId, tagId);
+    }
 }

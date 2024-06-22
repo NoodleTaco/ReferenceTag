@@ -16,4 +16,6 @@ public interface ImageTagRepository extends JpaRepository<ImageTagEntity, Long> 
 
     @Query("SELECT it FROM ImageTagEntity it WHERE it.image.id = :imageId")
     List<ImageTagEntity> findByImageId(@Param("imageId") Long imageId);
+
+    List<ImageTagEntity> findByImage_IdAndTag_Id(Long imageId, Long tagId);
 }
