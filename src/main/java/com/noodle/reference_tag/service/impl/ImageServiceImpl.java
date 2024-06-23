@@ -3,7 +3,9 @@ package com.noodle.reference_tag.service.impl;
 import com.noodle.reference_tag.domain.ImageEntity;
 import com.noodle.reference_tag.repository.ImageRepository;
 import com.noodle.reference_tag.service.ImageService;
+import com.noodle.reference_tag.service.ImageTagService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,12 +18,17 @@ public class ImageServiceImpl implements ImageService {
      */
     private final ImageRepository imageRepository;
 
+    private final ImageTagService imageTagService;
+
     /**
      * Constructor that will instantiate the repository
+     *
      * @param imageRepository The Image Repository that will be injected
+     * @param imageTagService
      */
-    public ImageServiceImpl(ImageRepository imageRepository) {
+    public ImageServiceImpl(ImageRepository imageRepository, ImageTagService imageTagService) {
         this.imageRepository = imageRepository;
+        this.imageTagService = imageTagService;
     }
 
     /**
@@ -30,6 +37,7 @@ public class ImageServiceImpl implements ImageService {
      * @return A copy of the Image Entity
      */
     @Override
+    @Transactional
     public ImageEntity save(ImageEntity imageEntity) {
         return imageRepository.save(imageEntity);
     }
@@ -69,7 +77,9 @@ public class ImageServiceImpl implements ImageService {
      * @param id The id of the image to be deleted
      */
     @Override
+    @Transactional
     public void deleteImageById(Long id) {
+        imageTagService.deleteByImageId(id);
         imageRepository.deleteById(id);
     }
 

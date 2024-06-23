@@ -2,6 +2,7 @@ package com.noodle.reference_tag.service.impl;
 
 import com.noodle.reference_tag.domain.TagEntity;
 import com.noodle.reference_tag.repository.TagRepository;
+import com.noodle.reference_tag.service.ImageTagService;
 import com.noodle.reference_tag.service.TagService;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +17,17 @@ public class TagServiceImpl implements TagService {
      */
     private final TagRepository tagRepository;
 
+    private final ImageTagService imageTagService;
+
     /**
      * Constructor that will instantiate the repository
-     * @param tagRepository The Tag Repository that will be injected
+     *
+     * @param tagRepository   The Tag Repository that will be injected
+     * @param imageTagService
      */
-    public TagServiceImpl(TagRepository tagRepository) {
+    public TagServiceImpl(TagRepository tagRepository, ImageTagService imageTagService) {
         this.tagRepository = tagRepository;
+        this.imageTagService = imageTagService;
     }
 
     /**
@@ -69,6 +75,7 @@ public class TagServiceImpl implements TagService {
      */
     @Override
     public void deleteTagById(Long id) {
+        imageTagService.deleteByTagId(id);
         tagRepository.deleteById(id);
     }
 

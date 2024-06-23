@@ -17,7 +17,6 @@ import javafx.stage.FileChooser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
-import javax.swing.text.html.Option;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,7 +30,7 @@ import java.util.Optional;
 public class MainController {
 
     //TODO: Going to have to manually create the cascade functionality when deleting tags or images
-    
+
     private final TagService tagService;
     private final StageInitializer stageInitializer;
     private final ImageService imageService;
@@ -82,7 +81,7 @@ public class MainController {
                 String imagePath = (String) clickedImageView.getUserData();
                 selectedImage = imageService.findByPath(imagePath).orElse(null);
                 if (selectedImage != null) {
-                    updateSelectedImageDetails();
+                    refreshSelectedImageDetails();
                 } else {
                     System.out.println("No image found for path: " + imagePath);
                 }
@@ -90,17 +89,25 @@ public class MainController {
         });
     }
 
-    private void updateSelectedImageDetails() {
+    private void refreshSelectedImageDetails() {
         if (selectedImage != null) {
-            selectedImageView.setImage(new Image(getClass().getResourceAsStream("/" + selectedImage.getPath())));
+            File imageFile = new File("src/main/resources/" + selectedImage.getPath());
+            selectedImageView.setImage(new Image(imageFile.toURI().toString()));
             selectedImageNameLabel.setText(Paths.get(selectedImage.getPath()).getFileName().toString());
-            updateImageTags();
+            refreshImageTags();
+        }
+        else{
+            selectedImageView.setImage(null);
+            selectedImageNameLabel.setText("");
+            selectedImageTagListView.getItems().clear();
         }
     }
 
-    private void updateImageTags() {
-        List<TagEntity> tags = imageTagService.getTagsForImage(selectedImage.getId());
-        selectedImageTagListView.getItems().setAll(tags);
+    private void refreshImageTags() {
+        if(selectedImage != null){
+            List<TagEntity> tags = imageTagService.getTagsForImage(selectedImage.getId());
+            selectedImageTagListView.getItems().setAll(tags);
+        }
     }
 
     /**
@@ -195,8 +202,8 @@ public class MainController {
         List<ImageEntity> images = imageService.findAllImages();
         for (ImageEntity imageEntity : images) {
             try {
-                // Load the image as a resource using the stored relative path
-                Image image = new Image(getClass().getResourceAsStream("/" + imageEntity.getPath()));
+                File imageFile = new File("src/main/resources/" + imageEntity.getPath());
+                Image image = new Image(imageFile.toURI().toString());
                 ImageView thumbnailView = new ImageView(image);
                 thumbnailView.setFitHeight(100);
                 thumbnailView.setFitWidth(100);
@@ -231,7 +238,7 @@ public class MainController {
 
                     if(imageTagService.findByImageIdAndTagId(selectedImage.getId(), tag.getId()).isEmpty()){
                         imageTagService.associateTagWithImage(selectedImage.getId(), tag.getId());
-                        updateImageTags();
+                        refreshImageTags();
                         NotificationUtil.showNotification("Tag added to image.", stageInitializer.getPrimaryStage());
                     }
                     else{
@@ -270,8 +277,64 @@ public class MainController {
         Optional<ButtonType> result = confirmDialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             imageTagService.removeTagFromImage(selectedImage.getId(), selectedTag.getId());
-            updateImageTags();
+            refreshImageTags();
             NotificationUtil.showNotification("Tag removed from image.", stageInitializer.getPrimaryStage());
+        }
+    }
+
+    @FXML
+    public void deleteTag(){
+        TagEntity selectedTag = allTagListView.getSelectionModel().getSelectedItem();
+        if (selectedTag == null) {
+            NotificationUtil.showNotification("No tag selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirm Tag Deletion");
+        confirmDialog.setHeaderText("Are you sure you want to delete this tag?");
+        confirmDialog.setContentText("Tag: " + selectedTag.getName());
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            tagService.deleteTagById(selectedTag.getId());
+            refreshAllTagListView();
+            NotificationUtil.showNotification("Tag Deleted", stageInitializer.getPrimaryStage());
+            refreshImageTags();
+        }
+    }
+
+    @FXML
+    public void deleteSelectedImage(){
+        if(selectedImage == null){
+            NotificationUtil.showNotification("No image selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+
+        Alert confirmDialog = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmDialog.setTitle("Confirm Image Deletion");
+        confirmDialog.setHeaderText("Are you sure you want to delete this Image?");
+        confirmDialog.setContentText("Image: " + selectedImage.getPath());
+
+        Optional<ButtonType> result = confirmDialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+
+            String resourcePath = "src/main/resources/" + selectedImage.getPath();
+            File imageFile = new File(resourcePath);
+            if (imageFile.exists()) {
+                boolean deleted = imageFile.delete();
+                if (!deleted) {
+                    NotificationUtil.showNotification("Failed to delete image file.", stageInitializer.getPrimaryStage());
+                    return;
+                }
+            }
+
+
+            imageService.deleteImageById(selectedImage.getId());
+            selectedImage = null;
+            NotificationUtil.showNotification("Image Deleted", stageInitializer.getPrimaryStage());
+            refreshImageTilePane();
+            refreshSelectedImageDetails();
+            refreshImageTags();
         }
     }
 

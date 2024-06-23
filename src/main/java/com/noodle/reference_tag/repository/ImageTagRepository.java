@@ -18,4 +18,8 @@ public interface ImageTagRepository extends JpaRepository<ImageTagEntity, Long> 
     List<ImageTagEntity> findByImageId(@Param("imageId") Long imageId);
 
     List<ImageTagEntity> findByImage_IdAndTag_Id(Long imageId, Long tagId);
+
+    void deleteByImage_Id(Long imageId);
+
+    void deleteByTag_Id(Long tagId);
 }

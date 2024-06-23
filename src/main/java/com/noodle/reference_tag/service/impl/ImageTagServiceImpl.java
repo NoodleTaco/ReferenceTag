@@ -7,6 +7,7 @@ import com.noodle.reference_tag.repository.ImageRepository;
 import com.noodle.reference_tag.repository.ImageTagRepository;
 import com.noodle.reference_tag.repository.TagRepository;
 import com.noodle.reference_tag.service.ImageTagService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class ImageTagServiceImpl implements ImageTagService {
      * @return A copy of the ImageTagEntity that was saved to the db
      */
     @Override
+    @Transactional
     public ImageTagEntity associateTagWithImage(Long imageId, Long tagId) {
         //Find Image
         ImageEntity image = imageRepository.findById(imageId)
@@ -56,6 +58,7 @@ public class ImageTagServiceImpl implements ImageTagService {
      * @param tagId The id of the tag that will be removed from the image
      */
     @Override
+    @Transactional
     public void removeTagFromImage(Long imageId, Long tagId) {
         ImageTagEntity imageTag = imageTagRepository.findByImageIdAndTagId(imageId, tagId)
                 .orElseThrow(() -> new RuntimeException("Image-Tag association not found"));
@@ -69,6 +72,7 @@ public class ImageTagServiceImpl implements ImageTagService {
      * @return A List of ImageTag Entities associated with the image
      */
     @Override
+    @Transactional
     public List<TagEntity> getTagsForImage(Long imageId) {
         ImageEntity image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
@@ -82,7 +86,20 @@ public class ImageTagServiceImpl implements ImageTagService {
     }
 
     @Override
+    @Transactional
     public List<ImageTagEntity> findByImageIdAndTagId(Long imageId, Long tagId) {
         return imageTagRepository.findByImage_IdAndTag_Id(imageId, tagId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByImageId(Long imageId) {
+        imageTagRepository.deleteByImage_Id(imageId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByTagId(Long tagId) {
+        imageTagRepository.deleteByTag_Id(tagId);
     }
 }

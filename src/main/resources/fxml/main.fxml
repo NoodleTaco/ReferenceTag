@@ -30,7 +30,7 @@
                   <HBox prefHeight="100.0" prefWidth="315.0">
                      <children>
                         <Button fx:id="CreateTagButton" mnemonicParsing="false" onAction="#onCreateTagAction" prefHeight="50.0" prefWidth="150.0" text="Create Tag" />
-                        <Button fx:id="DeleteTagButton" mnemonicParsing="false" prefHeight="50.0" prefWidth="150.0" text="Delete Tag" />
+                        <Button fx:id="DeleteTagButton" mnemonicParsing="false" onAction="#deleteTag" prefHeight="50.0" prefWidth="150.0" text="Delete Tag" />
                      </children>
                   </HBox>
                   <Button fx:id="refreshAllTagButton" mnemonicParsing="false" onAction="#refreshAllTagListView" text="refresh" />
@@ -38,7 +38,12 @@
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
                <children>
-                  <Button fx:id="AddImageButton" mnemonicParsing="false" onAction="#onAddImageButtonAction" prefHeight="50.0" prefWidth="150.0" text="Add Image" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button fx:id="AddImageButton" mnemonicParsing="false" onAction="#onAddImageButtonAction" prefHeight="50.0" prefWidth="150.0" text="Add Image" />
+                        <Button mnemonicParsing="false" onAction="#deleteSelectedImage" prefHeight="50.0" prefWidth="150.0" text="Delete Image" />
+                     </children>
+                  </HBox>
                   <TilePane fx:id="imageTilePane" prefHeight="200.0" prefWidth="200.0" />
                </children>
             </VBox>
