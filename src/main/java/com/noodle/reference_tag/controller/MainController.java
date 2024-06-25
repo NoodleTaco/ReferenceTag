@@ -23,13 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
 public class MainController {
-
-    //TODO: Going to have to manually create the cascade functionality when deleting tags or images
 
     private final TagService tagService;
     private final StageInitializer stageInitializer;
@@ -62,14 +61,22 @@ public class MainController {
     @FXML
     private ListView<TagEntity> selectedImageTagListView;
 
+    @FXML
+    private ListView<TagEntity> searchTagListView;
+
 
     //Properties holding selected elements in display
     private ImageEntity selectedImage;
+
+    private List<TagEntity> searchTag;
 
 
 
     //TODO: Make DB Operations work on Separate Thread
     public void initialize() {
+
+        searchTag = new ArrayList<>();
+
         refreshAllTagListView();
         refreshImageTilePane();
 
@@ -195,6 +202,11 @@ public class MainController {
     public void refreshAllTagListView(){
         List<TagEntity> allTags = tagService.findAllTags();
         allTagListView.getItems().setAll(allTags);
+    }
+
+    @FXML
+    public void refreshSearchTagListView(){
+        searchTagListView.getItems().setAll(searchTag);
     }
 
     private void refreshImageTilePane() {
@@ -336,6 +348,49 @@ public class MainController {
             refreshSelectedImageDetails();
             refreshImageTags();
         }
+    }
+
+    @FXML
+    public void addTagToSearch(){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Add Tag to Image");
+        dialog.setHeaderText("Enter the name of the tag to add:");
+        dialog.setContentText("Tag Name:");
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(tagName -> {
+            if (!tagName.isEmpty()) {
+                Optional<TagEntity> foundTag = tagService.findByName(tagName);
+                if(foundTag.isPresent()){
+                    TagEntity tag = foundTag.get();
+
+                    if(searchTag.contains(tag)){
+                        NotificationUtil.showNotification("Tag Already In Search.", stageInitializer.getPrimaryStage());
+                    }
+                    else{
+                        searchTag.add(tag);
+                        refreshSearchTagListView();
+                    }
+
+                }
+                else{
+                    NotificationUtil.showNotification("Tag Not Found.", stageInitializer.getPrimaryStage());
+                }
+            }
+        });
+
+    }
+
+    @FXML
+    public void removeTagFromSearch(){
+        TagEntity selectedTag = searchTagListView.getSelectionModel().getSelectedItem();
+        if (selectedTag == null) {
+            NotificationUtil.showNotification("No tag selected.", stageInitializer.getPrimaryStage());
+            return;
+        }
+        searchTag.remove(selectedTag);
+        refreshSearchTagListView();
+        NotificationUtil.showNotification("Tag removed from image.", stageInitializer.getPrimaryStage());
     }
 
 

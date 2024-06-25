@@ -102,4 +102,12 @@ public class ImageTagServiceImpl implements ImageTagService {
     public void deleteByTagId(Long tagId) {
         imageTagRepository.deleteByTag_Id(tagId);
     }
+
+    @Override
+    public List<ImageEntity> findImageBySearchedTags(List<Long> tagIds) {
+        if (tagIds.isEmpty()) {
+            return imageRepository.findAll();
+        }
+        return imageTagRepository.findImagesByAllTags(tagIds, tagIds.size());
+    }
 }

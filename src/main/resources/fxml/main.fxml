@@ -34,6 +34,13 @@
                      </children>
                   </HBox>
                   <Button fx:id="refreshAllTagButton" mnemonicParsing="false" onAction="#refreshAllTagListView" text="refresh" />
+                  <ListView fx:id="searchTagListView" prefHeight="200.0" prefWidth="200.0" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#addTagToSearch" prefHeight="50.0" prefWidth="150.0" text="Add Tag" />
+                        <Button mnemonicParsing="false" onAction="#removeTagFromSearch" prefHeight="50.0" prefWidth="150.0" text="Remove Tag" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">

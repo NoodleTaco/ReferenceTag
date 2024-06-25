@@ -1,5 +1,6 @@
 package com.noodle.reference_tag.repository;
 
+import com.noodle.reference_tag.domain.ImageEntity;
 import com.noodle.reference_tag.domain.ImageTagEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,16 @@ public interface ImageTagRepository extends JpaRepository<ImageTagEntity, Long> 
     void deleteByImage_Id(Long imageId);
 
     void deleteByTag_Id(Long tagId);
+
+    /**
+     * Searches for Images that at least match the given number of tags
+     * @param tagIds The List of Tag Entities used to specify the search
+     * @param tagCount Number of matches in the List (should always be Tag List size)
+     * @return The List of Image Entities that adhere to the search
+     */
+    @Query("SELECT it.image FROM ImageTagEntity it " +
+            "WHERE it.tag.id IN :tagIds " +
+            "GROUP BY it.image.id " +
+            "HAVING COUNT(DISTINCT it.tag.id) = :tagCount")
+    List<ImageEntity> findImagesByAllTags(@Param("tagIds") List<Long> tagIds, @Param("tagCount") long tagCount);
 }
