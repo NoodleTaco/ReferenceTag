@@ -220,7 +220,7 @@ public class MainController {
 
     private void refreshImageTilePane() {
         imageTilePane.getChildren().clear();
-        List<ImageEntity> images = imageService.findAllImages();
+        List<ImageEntity> images = imageTagService.findImageBySearchedTags(tagSearchList.getSelectedTagIds());
         for (ImageEntity imageEntity : images) {
             try {
                 File imageFile = new File("src/main/resources/" + imageEntity.getPath());
@@ -375,7 +375,7 @@ public class MainController {
 
                     if(tagSearchList.addTag(tag)){
                         refreshSearchTagListView();
-
+                        refreshImageTilePane();
                     }
                     else{
                         NotificationUtil.showNotification("Tag Already In Search.", stageInitializer.getPrimaryStage());
@@ -399,7 +399,8 @@ public class MainController {
         }
         tagSearchList.removeTag(selectedTag);
         refreshSearchTagListView();
-        NotificationUtil.showNotification("Tag removed from image.", stageInitializer.getPrimaryStage());
+        refreshImageTilePane();
+        NotificationUtil.showNotification("Tag removed from Search.", stageInitializer.getPrimaryStage());
     }
 
 
