@@ -2,11 +2,13 @@ package com.noodle.reference_tag.controller;
 
 import com.noodle.reference_tag.config.StageInitializer;
 import com.noodle.reference_tag.domain.ImageEntity;
+import com.noodle.reference_tag.domain.ImageTagEntity;
 import com.noodle.reference_tag.domain.TagEntity;
 import com.noodle.reference_tag.service.ImageService;
 import com.noodle.reference_tag.service.ImageTagService;
 import com.noodle.reference_tag.service.TagService;
 import com.noodle.reference_tag.util.NotificationUtil;
+import com.noodle.reference_tag.util.TagSelectionManager;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -36,12 +38,15 @@ public class MainController {
 
     private final ImageTagService imageTagService;
 
+    private final TagSelectionManager tagSearchList;
+
     @Autowired
-    public MainController(TagService tagService, StageInitializer stageInitializer, ImageService imageService, ImageTagService imageTagService) {
+    public MainController(TagService tagService, StageInitializer stageInitializer, ImageService imageService, ImageTagService imageTagService, TagSelectionManager tagSelectionManager) {
         this.tagService = tagService;
         this.stageInitializer = stageInitializer;
         this.imageService = imageService;
         this.imageTagService = imageTagService;
+        this.tagSearchList = tagSelectionManager;
     }
 
     //FXML Properties
@@ -68,14 +73,9 @@ public class MainController {
     //Properties holding selected elements in display
     private ImageEntity selectedImage;
 
-    private List<TagEntity> searchTag;
-
-
 
     //TODO: Make DB Operations work on Separate Thread
     public void initialize() {
-
-        searchTag = new ArrayList<>();
 
         refreshAllTagListView();
         refreshImageTilePane();
@@ -202,11 +202,20 @@ public class MainController {
     public void refreshAllTagListView(){
         List<TagEntity> allTags = tagService.findAllTags();
         allTagListView.getItems().setAll(allTags);
+
+//        for(Long tagId: tagSearchList.getSelectedTagIds()){
+//            System.out.println("Tag Id:" + tagId);
+//        }
+
+        List<ImageEntity> result = imageTagService.findImageBySearchedTags(tagSearchList.getSelectedTagIds());
+        for(ImageEntity imageEntity: result){
+            System.out.println(imageEntity);
+        }
     }
 
     @FXML
     public void refreshSearchTagListView(){
-        searchTagListView.getItems().setAll(searchTag);
+        searchTagListView.getItems().setAll(tagSearchList.getSelectedTags());
     }
 
     private void refreshImageTilePane() {
@@ -364,12 +373,12 @@ public class MainController {
                 if(foundTag.isPresent()){
                     TagEntity tag = foundTag.get();
 
-                    if(searchTag.contains(tag)){
-                        NotificationUtil.showNotification("Tag Already In Search.", stageInitializer.getPrimaryStage());
+                    if(tagSearchList.addTag(tag)){
+                        refreshSearchTagListView();
+
                     }
                     else{
-                        searchTag.add(tag);
-                        refreshSearchTagListView();
+                        NotificationUtil.showNotification("Tag Already In Search.", stageInitializer.getPrimaryStage());
                     }
 
                 }
@@ -388,7 +397,7 @@ public class MainController {
             NotificationUtil.showNotification("No tag selected.", stageInitializer.getPrimaryStage());
             return;
         }
-        searchTag.remove(selectedTag);
+        tagSearchList.removeTag(selectedTag);
         refreshSearchTagListView();
         NotificationUtil.showNotification("Tag removed from image.", stageInitializer.getPrimaryStage());
     }

@@ -30,9 +30,13 @@ public interface ImageTagRepository extends JpaRepository<ImageTagEntity, Long> 
      * @param tagCount Number of matches in the List (should always be Tag List size)
      * @return The List of Image Entities that adhere to the search
      */
-    @Query("SELECT it.image FROM ImageTagEntity it " +
+    @Query("SELECT DISTINCT it.image FROM ImageTagEntity it " +
             "WHERE it.tag.id IN :tagIds " +
-            "GROUP BY it.image.id " +
-            "HAVING COUNT(DISTINCT it.tag.id) = :tagCount")
+            "AND it.image.id IN (" +
+            "    SELECT it2.image.id FROM ImageTagEntity it2 " +
+            "    WHERE it2.tag.id IN :tagIds " +
+            "    GROUP BY it2.image.id " +
+            "    HAVING COUNT(DISTINCT it2.tag.id) = :tagCount" +
+            ")")
     List<ImageEntity> findImagesByAllTags(@Param("tagIds") List<Long> tagIds, @Param("tagCount") long tagCount);
 }

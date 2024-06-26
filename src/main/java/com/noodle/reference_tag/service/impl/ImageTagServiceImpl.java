@@ -104,6 +104,7 @@ public class ImageTagServiceImpl implements ImageTagService {
     }
 
     @Override
+    @Transactional
     public List<ImageEntity> findImageBySearchedTags(List<Long> tagIds) {
         if (tagIds.isEmpty()) {
             return imageRepository.findAll();
